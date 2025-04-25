@@ -1,17 +1,7 @@
-#!/usr/bin/env python3
-"""
-Implements Uniform-Cost Search (UCS) and Depth-First Search (DFS) to vacuum all dirty cells in a grid world.
-Usage:
-    python3 planner.py [uniform-cost|depth-first] <world-file>
-Output:
-    One action per line: N, S, E, W, or V
-    One line with the number of nodes generated
-    One line with the number of nodes expanded
-"""
 import sys
 import heapq
 
-# Movement actions and their deltas
+# movement actions and their deltas
 action_moves = {
     'N': (-1, 0),
     'S': (1, 0),
@@ -21,7 +11,6 @@ action_moves = {
 
 
 def read_world(path):
-    """Read world file and return grid, start position, dirty set, rows, cols."""
     with open(path) as f:
         cols = int(f.readline().strip())
         rows = int(f.readline().strip())
@@ -41,25 +30,20 @@ def read_world(path):
 
 
 def get_successors(state, grid, rows, cols):
-    """
-    Given a state (r, c, dirty_set), yield (action, next_state).
-    next_state is (r, c, new_dirty_set).
-    """
     r, c, dirty = state
-    # Move actions
+    # move
     for act, (dr, dc) in action_moves.items():
         nr, nc = r + dr, c + dc
         if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] != '#':
             yield act, (nr, nc, dirty)
-    # Vacuum action
+    # vacuum
     if (r, c) in dirty:
         new_dirty = set(dirty)
         new_dirty.remove((r, c))
         yield 'V', (r, c, frozenset(new_dirty))
 
-
-def depth_first_search(start_state, grid, rows, cols):
-    """Performs DFS and returns (plan, generated, expanded)."""
+# dfs
+def depth_first_search(start_state, grid, rows, cols): 
     stack = [(start_state, [])]
     visited = set([start_state])
     nodes_generated = 0
@@ -69,22 +53,20 @@ def depth_first_search(start_state, grid, rows, cols):
         state, path = stack.pop()
         nodes_expanded += 1
         _, _, dirty = state
-        # Goal test: no dirty cells left
         if not dirty:
             return path, nodes_generated, nodes_expanded
-        # Expand
+        # expand
         for act, nxt in get_successors(state, grid, rows, cols):
             nodes_generated += 1
             if nxt not in visited:
                 visited.add(nxt)
                 stack.append((nxt, path + [act]))
-    # No solution found
+    # no solution found
     return None, nodes_generated, nodes_expanded
 
-
+#ucs
 def uniform_cost_search(start_state, grid, rows, cols):
-    """Performs UCS and returns (plan, generated, expanded)."""
-    frontier = []  # heap of (cost, count, state, path)
+    frontier = []  # (cost, count, state, path)
     entry_count = 0
     heapq.heappush(frontier, (0, entry_count, start_state, []))
     best_cost = {start_state: 0}
@@ -93,7 +75,7 @@ def uniform_cost_search(start_state, grid, rows, cols):
 
     while frontier:
         cost, _, state, path = heapq.heappop(frontier)
-        # Skip if we have a better cost already
+        # if there's a better cost already, skip
         if cost > best_cost.get(state, float('inf')):
             continue
         nodes_expanded += 1
@@ -107,7 +89,7 @@ def uniform_cost_search(start_state, grid, rows, cols):
                 best_cost[nxt] = new_cost
                 entry_count += 1
                 heapq.heappush(frontier, (new_cost, entry_count, nxt, path + [act]))
-    # No solution found
+    # no solution found womp womp
     return None, nodes_generated, nodes_expanded
 
 
@@ -133,10 +115,8 @@ def main():
         print("No plan found.")
         sys.exit(1)
 
-    # Output plan actions
     for action in plan:
         print(action)
-    # Output statistics
     print(f"{gen} nodes generated")
     print(f"{exp} nodes expanded")
 
