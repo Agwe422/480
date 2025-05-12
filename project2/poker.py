@@ -153,7 +153,7 @@ def mcts_decision(hole_cards, community_cards, deck, time_limit=10.0):
             temp.wins += outcome
             temp = temp.parent
     win_prob = root.wins / root.visits if root.visits else 0.0
-    return win_prob >= 0.5
+    return win_prob
 
 if __name__ == "__main__":
     deck = create_deck()
@@ -168,9 +168,11 @@ if __name__ == "__main__":
 
     # Pre-Flop decision
     community = []
-    stay = mcts_decision(my_hole, community, deck.copy(), time_limit=10.0)
-    print("Decision Pre-Flop:", "Stay" if stay else "Fold")
-    if not stay:
+    win_prob = mcts_decision(my_hole, community, deck.copy(), time_limit=10.0)
+    print(f"Win probability Pre-Flop: {win_prob:.2f}")
+    decision = "Stay" if win_prob >= 0.5 else "Fold"
+    print("Decision Pre-Flop:", decision)
+    if decision == "Fold":
         print("Player folded. Game over.")
         sys.exit()
 
@@ -179,9 +181,11 @@ if __name__ == "__main__":
     flop = deal_cards(deck, 3)
     community = flop.copy()
     print("Flop:", flop)
-    stay = mcts_decision(my_hole, community, deck.copy(), time_limit=10.0)
-    print("Decision on Flop:", "Stay" if stay else "Fold")
-    if not stay:
+    win_prob = mcts_decision(my_hole, community, deck.copy(), time_limit=10.0)
+    print(f"Win probability on Flop: {win_prob:.2f}")
+    decision = "Stay" if win_prob >= 0.5 else "Fold"
+    print("Decision on Flop:", decision)
+    if decision == "Fold":
         print("Player folded. Game over.")
         sys.exit()
 
@@ -190,9 +194,11 @@ if __name__ == "__main__":
     turn_card = deal_cards(deck, 1)
     community.extend(turn_card)
     print("Turn:", turn_card)
-    stay = mcts_decision(my_hole, community, deck.copy(), time_limit=10.0)
-    print("Decision on Turn:", "Stay" if stay else "Fold")
-    if not stay:
+    win_prob = mcts_decision(my_hole, community, deck.copy(), time_limit=10.0)
+    print(f"Win probability on Turn: {win_prob:.2f}")
+    decision = "Stay" if win_prob >= 0.5 else "Fold"
+    print("Decision on Turn:", decision)
+    if decision == "Fold":
         print("Player folded. Game over.")
         sys.exit()
 
@@ -201,8 +207,10 @@ if __name__ == "__main__":
     river_card = deal_cards(deck, 1)
     community.extend(river_card)
     print("River:", river_card)
-    stay = mcts_decision(my_hole, community, deck.copy(), time_limit=10.0)
-    print("Decision on River:", "Stay" if stay else "Fold")
-    if not stay:
+    win_prob = mcts_decision(my_hole, community, deck.copy(), time_limit=10.0)
+    print(f"Win probability on River: {win_prob:.2f}")
+    decision = "Stay" if win_prob >= 0.5 else "Fold"
+    print("Decision on River:", decision)
+    if decision == "Fold":
         print("Player folded. Game over.")
         sys.exit()
